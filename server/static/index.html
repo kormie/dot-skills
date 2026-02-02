@@ -179,12 +179,297 @@
       padding: 40px;
       color: #6b7280;
     }
+
+    /* Header buttons */
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-toggle {
+      background: #e5e7eb;
+      color: #374151;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-toggle:hover {
+      background: #d1d5db;
+    }
+
+    .btn-toggle.active {
+      background: #4361ee;
+      color: #fff;
+    }
+
+    /* Table view */
+    .table-view {
+      display: none;
+      padding: 24px;
+    }
+
+    .table-view.active {
+      display: block;
+    }
+
+    .board.hidden {
+      display: none;
+    }
+
+    .tickets-table {
+      width: 100%;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      border-collapse: collapse;
+      overflow: hidden;
+    }
+
+    .tickets-table th,
+    .tickets-table td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .tickets-table th {
+      background: #f9fafb;
+      font-size: 12px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tickets-table tr:hover {
+      background: #f9fafb;
+      cursor: pointer;
+    }
+
+    .tickets-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 200;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: #fff;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 1200px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a1a2e;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-save {
+      background: #4361ee;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .btn-save:hover {
+      background: #3651d4;
+    }
+
+    .btn-cancel {
+      background: #e5e7eb;
+      color: #374151;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .btn-cancel:hover {
+      background: #d1d5db;
+    }
+
+    .modal-body {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      min-height: 500px;
+    }
+
+    .editor-pane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #e5e7eb;
+    }
+
+    .editor-pane h3,
+    .preview-pane h3 {
+      padding: 12px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      background: #f9fafb;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .editor-pane textarea {
+      flex: 1;
+      border: none;
+      padding: 16px;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      resize: none;
+      outline: none;
+    }
+
+    .preview-pane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .preview-content {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      line-height: 1.6;
+    }
+
+    .preview-content h1, .preview-content h2, .preview-content h3 {
+      margin-top: 16px;
+      margin-bottom: 8px;
+    }
+
+    .preview-content p {
+      margin-bottom: 12px;
+    }
+
+    .preview-content ul, .preview-content ol {
+      margin-left: 24px;
+      margin-bottom: 12px;
+    }
+
+    .preview-content code {
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+
+    .preview-content pre {
+      background: #f3f4f6;
+      padding: 12px;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin-bottom: 12px;
+    }
+
+    /* New ticket form */
+    .new-ticket-form {
+      padding: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: #4361ee;
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+    }
+
+    .btn-create {
+      background: #4361ee;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .btn-create:hover {
+      background: #3651d4;
+    }
   </style>
 </head>
 <body>
   <header class="header">
     <h1>Kanban Board</h1>
-    <button class="btn-new" id="newTicketBtn">+ New Ticket</button>
+    <div class="header-actions">
+      <button class="btn-toggle active" id="boardViewBtn">Board</button>
+      <button class="btn-toggle" id="tableViewBtn">Table</button>
+      <button class="btn-new" id="newTicketBtn">+ New Ticket</button>
+    </div>
   </header>
 
   <main class="board" id="board">
@@ -213,6 +498,86 @@
     </div>
   </main>
 
+  <!-- Table View -->
+  <div class="table-view" id="tableView">
+    <table class="tickets-table">
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th>Type</th>
+          <th>Priority</th>
+          <th>Title</th>
+          <th>Created</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- Editor Modal -->
+  <div class="modal-overlay" id="editorModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modalTitle">Edit Ticket</h2>
+        <div class="modal-actions">
+          <button class="btn-cancel" id="cancelBtn">Cancel</button>
+          <button class="btn-save" id="saveBtn">Save</button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="editor-pane">
+          <h3>Markdown</h3>
+          <textarea id="editorTextarea" placeholder="Enter markdown..."></textarea>
+        </div>
+        <div class="preview-pane">
+          <h3>Preview</h3>
+          <div class="preview-content" id="previewContent"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Ticket Modal -->
+  <div class="modal-overlay" id="newTicketModal">
+    <div class="modal" style="max-width: 500px;">
+      <div class="modal-header">
+        <h2>Create New Ticket</h2>
+        <div class="modal-actions">
+          <button class="btn-cancel" id="newTicketCancelBtn">Cancel</button>
+        </div>
+      </div>
+      <div class="new-ticket-form">
+        <form id="newTicketForm">
+          <div class="form-group">
+            <label for="ticketType">Type</label>
+            <select id="ticketType" required>
+              <option value="feature">Feature</option>
+              <option value="bug">Bug</option>
+              <option value="test">Test</option>
+              <option value="refactor">Refactor</option>
+              <option value="infra">Infra</option>
+              <option value="docs">Docs</option>
+              <option value="spike">Spike</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="ticketTitle">Title</label>
+            <input type="text" id="ticketTitle" placeholder="Enter ticket title..." required>
+          </div>
+          <div class="form-group">
+            <label for="ticketPriority">Priority</label>
+            <select id="ticketPriority" required>
+              <option value="high">High</option>
+              <option value="medium" selected>Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-create">Create Ticket</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script>
     // State
     let selectedCard = null;
@@ -221,6 +586,11 @@
       'in-progress': [],
       'ready-to-review': []
     };
+    let currentView = 'board';
+    let currentEditTicket = null;
+    let currentEditColumn = null;
+    let isNewTicket = false;
+    let previewDebounceTimer = null;
 
     // Render a single card
     function renderCard(ticket, column) {
@@ -314,9 +684,221 @@
     // Refresh board (callable from editor)
     window.refreshBoard = loadTickets;
 
-    // New ticket button handler (will be connected to modal in Task 8)
-    document.getElementById('newTicketBtn').addEventListener('click', () => {
-      window.dispatchEvent(new CustomEvent('new-ticket'));
+    // View toggle
+    const boardViewBtn = document.getElementById('boardViewBtn');
+    const tableViewBtn = document.getElementById('tableViewBtn');
+    const board = document.getElementById('board');
+    const tableView = document.getElementById('tableView');
+
+    function switchView(view) {
+      currentView = view;
+      if (view === 'board') {
+        boardViewBtn.classList.add('active');
+        tableViewBtn.classList.remove('active');
+        board.classList.remove('hidden');
+        tableView.classList.remove('active');
+      } else {
+        boardViewBtn.classList.remove('active');
+        tableViewBtn.classList.add('active');
+        board.classList.add('hidden');
+        tableView.classList.add('active');
+        renderTable();
+      }
+    }
+
+    boardViewBtn.addEventListener('click', () => switchView('board'));
+    tableViewBtn.addEventListener('click', () => switchView('table'));
+
+    // Render table view
+    function renderTable() {
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+
+      const statusLabels = {
+        'todo': 'Todo',
+        'in-progress': 'In Progress',
+        'ready-to-review': 'Ready to Review'
+      };
+
+      ['todo', 'in-progress', 'ready-to-review'].forEach(column => {
+        (tickets[column] || []).forEach(ticket => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${statusLabels[column]}</td>
+            <td><span class="type-badge type-${ticket.type}">${ticket.type}</span></td>
+            <td><span class="priority-indicator priority-${ticket.priority}" style="display:inline-block;"></span> ${ticket.priority}</td>
+            <td>${escapeHtml(ticket.title)}</td>
+            <td>${ticket.created || '-'}</td>
+          `;
+          tr.addEventListener('click', () => openEditor(ticket, column));
+          tbody.appendChild(tr);
+        });
+      });
+
+      if (tbody.children.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#9ca3af;">No tickets</td></tr>';
+      }
+    }
+
+    // Editor modal
+    const editorModal = document.getElementById('editorModal');
+    const editorTextarea = document.getElementById('editorTextarea');
+    const previewContent = document.getElementById('previewContent');
+    const modalTitle = document.getElementById('modalTitle');
+    const saveBtn = document.getElementById('saveBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+
+    function openEditor(ticket, column) {
+      currentEditTicket = ticket;
+      currentEditColumn = column;
+      isNewTicket = false;
+      modalTitle.textContent = `Edit: ${ticket.title}`;
+
+      // Fetch full content
+      fetch(`/api/ticket/${column}/${ticket.filename}`)
+        .then(res => res.json())
+        .then(data => {
+          editorTextarea.value = data.content;
+          updatePreview();
+          editorModal.classList.add('active');
+        })
+        .catch(err => {
+          console.error('Failed to load ticket:', err);
+          alert('Failed to load ticket content');
+        });
+    }
+
+    function openEditorWithContent(content, title) {
+      isNewTicket = true;
+      currentEditTicket = null;
+      currentEditColumn = 'todo';
+      modalTitle.textContent = title || 'New Ticket';
+      editorTextarea.value = content;
+      updatePreview();
+      editorModal.classList.add('active');
+    }
+
+    function closeEditor() {
+      editorModal.classList.remove('active');
+      currentEditTicket = null;
+      currentEditColumn = null;
+      editorTextarea.value = '';
+      previewContent.innerHTML = '';
+    }
+
+    function updatePreview() {
+      previewContent.innerHTML = marked.parse(editorTextarea.value);
+    }
+
+    // Debounced preview update
+    editorTextarea.addEventListener('input', () => {
+      clearTimeout(previewDebounceTimer);
+      previewDebounceTimer = setTimeout(updatePreview, 300);
+    });
+
+    cancelBtn.addEventListener('click', closeEditor);
+
+    saveBtn.addEventListener('click', async () => {
+      const content = editorTextarea.value;
+
+      try {
+        if (isNewTicket) {
+          // POST new ticket
+          const response = await fetch('/api/tickets', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content })
+          });
+          if (!response.ok) throw new Error('Failed to create ticket');
+        } else {
+          // PUT update existing
+          const response = await fetch(`/api/ticket/${currentEditColumn}/${currentEditTicket.filename}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content })
+          });
+          if (!response.ok) throw new Error('Failed to save ticket');
+        }
+
+        closeEditor();
+        await loadTickets();
+        if (currentView === 'table') {
+          renderTable();
+        }
+      } catch (err) {
+        console.error('Save error:', err);
+        alert('Failed to save ticket');
+      }
+    });
+
+    // Close modal on overlay click
+    editorModal.addEventListener('click', (e) => {
+      if (e.target === editorModal) closeEditor();
+    });
+
+    // New ticket modal
+    const newTicketModal = document.getElementById('newTicketModal');
+    const newTicketForm = document.getElementById('newTicketForm');
+    const newTicketCancelBtn = document.getElementById('newTicketCancelBtn');
+
+    function openNewTicketModal() {
+      newTicketModal.classList.add('active');
+      document.getElementById('ticketTitle').value = '';
+      document.getElementById('ticketType').value = 'feature';
+      document.getElementById('ticketPriority').value = 'medium';
+    }
+
+    function closeNewTicketModal() {
+      newTicketModal.classList.remove('active');
+    }
+
+    newTicketCancelBtn.addEventListener('click', closeNewTicketModal);
+
+    newTicketModal.addEventListener('click', (e) => {
+      if (e.target === newTicketModal) closeNewTicketModal();
+    });
+
+    newTicketForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const type = document.getElementById('ticketType').value;
+      const title = document.getElementById('ticketTitle').value;
+      const priority = document.getElementById('ticketPriority').value;
+
+      // Generate template content
+      const today = new Date().toISOString().split('T')[0];
+      const template = `---
+type: ${type}
+title: "${title}"
+priority: ${priority}
+created: ${today}
+---
+
+# ${title}
+
+## Description
+
+_Describe the ticket here..._
+
+## Acceptance Criteria
+
+- [ ] Criteria 1
+- [ ] Criteria 2
+
+## Notes
+
+`;
+
+      closeNewTicketModal();
+      openEditorWithContent(template, `New Ticket: ${title}`);
+    });
+
+    // Wire up new ticket button
+    document.getElementById('newTicketBtn').addEventListener('click', openNewTicketModal);
+
+    // Wire up card-selected event to open editor
+    window.addEventListener('card-selected', (e) => {
+      const { ticket, column } = e.detail;
+      openEditor(ticket, column);
     });
 
     // Initial load
