@@ -1,0 +1,13 @@
+{
+  "name": "kanban-skill",
+  "version": "1.0.0",
+  "description": "Kanban board management with web viewer for Claude Code",
+  "skills": ["skills/kanban-tracker", "skills/ticket-picker"],
+  "commands": ["commands/serve.md"],
+  "hooks": [
+    {
+      "event": "SessionEnd",
+      "command": "${CLAUDE_PLUGIN_ROOT}/hooks/stop-server-on-exit.sh"
+    }
+  ]
+}
