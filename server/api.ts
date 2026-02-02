@@ -79,11 +79,9 @@ export async function handleApi(req: Request, url: URL, root: string): Promise<R
     const filepath = `${root}/kanban/${column}/${filename}`;
     try {
       const content = await Bun.file(filepath).text();
-      return new Response(content, {
-        headers: { "Content-Type": "text/markdown" },
-      });
+      return Response.json({ content });
     } catch {
-      return new Response("Not found", { status: 404 });
+      return Response.json({ error: "Not found" }, { status: 404 });
     }
   }
 
@@ -91,15 +89,35 @@ export async function handleApi(req: Request, url: URL, root: string): Promise<R
   if (getMatch && method === "PUT") {
     const [, column, filename] = getMatch;
     const filepath = `${root}/kanban/${column}/${filename}`;
-    const content = await req.text();
+    const body = await req.json();
+    const content = body.content;
     await Bun.write(filepath, content);
     await gitCommit(filepath, "update");
-    return new Response("OK");
+    return Response.json({ success: true });
   }
 
   // POST /api/tickets
   if (path === "/api/tickets" && method === "POST") {
     const body = await req.json();
+
+    // Frontend sends { content } with raw markdown
+    if (body.content) {
+      const content = body.content;
+      const fm = parseFrontmatter(content);
+      const title = extractTitle(content);
+      const type = fm.type || "feature";
+
+      const typePrefix = type === "feature" ? "feat" : type;
+      const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-+$/, "");
+      const filename = `${typePrefix}--${slug}.md`;
+      const filepath = `${root}/kanban/todo/${filename}`;
+
+      await Bun.write(filepath, content);
+      await gitCommit(filepath, "create");
+      return Response.json({ filename });
+    }
+
+    // Legacy: structured body with type, title, priority, etc.
     const { type, title, priority, description, acceptance_criteria } = body;
 
     const typePrefix = type === "feature" ? "feat" : type;
