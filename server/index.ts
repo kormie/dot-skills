@@ -1,4 +1,5 @@
 import { $ } from "bun";
+import { handleApi } from "./api";
 
 const KANBAN_ROOT = process.env.KANBAN_ROOT || process.cwd();
 const PORT = parseInt(process.env.PORT || "3333");
@@ -28,8 +29,3 @@ const server = Bun.serve({
 console.log(`Kanban board running at http://localhost:${PORT}`);
 console.log(`Serving kanban from: ${KANBAN_ROOT}`);
 console.log(`To stop: pkill -f "kanban-skill/server"`);
-
-// Placeholder for API handler
-async function handleApi(req: Request, url: URL, root: string): Promise<Response> {
-  return new Response("API not implemented", { status: 501 });
-}
