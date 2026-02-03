@@ -1,0 +1,8 @@
+{
+  "name": "kanban-skill",
+  "description": "Kanban board management with web viewer for Claude Code",
+  "version": "1.0.0",
+  "author": {
+    "name": "David Kormushoff"
+  }
+}

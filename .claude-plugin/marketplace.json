@@ -1,0 +1,19 @@
+{
+  "name": "dot-skills",
+  "description": "Personal plugin marketplace for Claude Code",
+  "owner": {
+    "name": "David Kormushoff",
+    "email": "kormie@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "kanban-skill",
+      "source": "./plugins/kanban-skill",
+      "description": "Kanban board management with web viewer for tracking work across Claude Code sessions",
+      "version": "1.0.0",
+      "author": {
+        "name": "David Kormushoff"
+      }
+    }
+  ]
+}
