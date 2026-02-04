@@ -21,11 +21,11 @@ Add a red "Blocked" badge to tickets that are blocked, with a hover tooltip show
 
 ## Acceptance Criteria
 
-- [ ] Blocked tickets show red badge inline with type badge
-- [ ] Hover tooltip shows blocker(s)
-- [ ] Multiple blockers on separate lines in tooltip
-- [ ] Badge styling: red background (#fee2e2), red text (#dc2626)
-- [ ] Table view has new "Status" column (Blocked or blank)
+- [x] Blocked tickets show red badge inline with type badge
+- [x] Hover tooltip shows blocker(s)
+- [x] Multiple blockers on separate lines in tooltip
+- [x] Badge styling: red background (#fee2e2), red text (#dc2626)
+- [x] Table view has new "Status" column (Blocked or blank)
 
 ## Context
 
