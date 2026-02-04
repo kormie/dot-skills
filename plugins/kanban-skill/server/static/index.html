@@ -653,6 +653,210 @@
       text-decoration: none;
       color: inherit;
     }
+
+    /* Swimlane View */
+    .swimlane-view {
+      display: none;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .swimlane-view.active {
+      display: block;
+    }
+
+    .swimlane-empty-state {
+      text-align: center;
+      color: #9ca3af;
+      padding: 60px 24px;
+      font-size: 16px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .swimlane {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .swimlane.collapsed .swimlane-body {
+      display: none;
+    }
+
+    .swimlane-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px;
+      background: #f9fafb;
+      border-bottom: 1px solid #e5e7eb;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .swimlane.collapsed .swimlane-header {
+      border-bottom: none;
+    }
+
+    .swimlane-header:hover {
+      background: #f3f4f6;
+    }
+
+    .swimlane-collapse-toggle {
+      font-size: 12px;
+      color: #6b7280;
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+
+    .swimlane.collapsed .swimlane-collapse-toggle {
+      transform: rotate(-90deg);
+    }
+
+    .swimlane-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1f2937;
+      flex-shrink: 0;
+    }
+
+    .swimlane-priority-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .swimlane-priority-badge.priority-high {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .swimlane-priority-badge.priority-medium {
+      background: #fef9c3;
+      color: #ca8a04;
+    }
+
+    .swimlane-priority-badge.priority-low {
+      background: #f3f4f6;
+      color: #6b7280;
+    }
+
+    .swimlane-progress {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    .swimlane-progress-bar {
+      width: 100px;
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .swimlane-progress-fill {
+      height: 100%;
+      background: #4361ee;
+      border-radius: 4px;
+      transition: width 0.3s;
+    }
+
+    .swimlane-progress-fill.completed {
+      background: #16a34a;
+    }
+
+    .swimlane-progress-text {
+      font-size: 13px;
+      color: #6b7280;
+      font-variant-numeric: tabular-nums;
+      min-width: 40px;
+    }
+
+    .swimlane-body {
+      display: flex;
+      min-height: 120px;
+    }
+
+    .swimlane-column {
+      flex: 1;
+      padding: 12px;
+      border-right: 1px solid #e5e7eb;
+      min-width: 200px;
+    }
+
+    .swimlane-column:last-child {
+      border-right: none;
+    }
+
+    .swimlane-column-header {
+      font-size: 11px;
+      font-weight: 600;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .swimlane-cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .swimlane-card {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #f3f4f6;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+      max-width: 100%;
+    }
+
+    .swimlane-card:hover {
+      background: #e5e7eb;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    }
+
+    .swimlane-card .type-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      flex-shrink: 0;
+    }
+
+    .swimlane-card-title {
+      font-size: 13px;
+      color: #374151;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .swimlane-card .blocked-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      flex-shrink: 0;
+    }
+
+    .swimlane-column-empty {
+      color: #d1d5db;
+      font-size: 12px;
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
@@ -661,6 +865,7 @@
     <div class="header-actions">
       <button class="btn-toggle active" id="boardViewBtn">Board</button>
       <button class="btn-toggle" id="tableViewBtn">Table</button>
+      <button class="btn-toggle" id="swimlaneViewBtn">Workstreams</button>
       <button class="btn-new" id="newTicketBtn">+ New Ticket</button>
     </div>
   </header>
@@ -715,6 +920,9 @@
       <tbody id="tableBody"></tbody>
     </table>
   </div>
+
+  <!-- Swimlane View -->
+  <div class="swimlane-view" id="swimlaneView"></div>
 
   <!-- Editor Modal -->
   <div class="modal-overlay" id="editorModal">
@@ -906,7 +1114,8 @@
       const board = document.getElementById('board');
 
       try {
-        const response = await fetch('/api/tickets');
+        // Fetch with includeDone for swimlane view compatibility
+        const response = await fetch('/api/tickets?includeDone=true');
         if (!response.ok) throw new Error('Failed to fetch tickets');
 
         tickets = await response.json();
@@ -930,27 +1139,47 @@
     // View toggle
     const boardViewBtn = document.getElementById('boardViewBtn');
     const tableViewBtn = document.getElementById('tableViewBtn');
+    const swimlaneViewBtn = document.getElementById('swimlaneViewBtn');
     const board = document.getElementById('board');
     const tableView = document.getElementById('tableView');
+    const swimlaneView = document.getElementById('swimlaneView');
+    const workstreamRibbon = document.getElementById('workstreamRibbon');
 
     function switchView(view) {
       currentView = view;
+
+      // Reset all button states
+      boardViewBtn.classList.remove('active');
+      tableViewBtn.classList.remove('active');
+      swimlaneViewBtn.classList.remove('active');
+
+      // Hide all views
+      board.classList.add('hidden');
+      tableView.classList.remove('active');
+      swimlaneView.classList.remove('active');
+
+      // Show workstream ribbon by default
+      workstreamRibbon.style.display = '';
+
       if (view === 'board') {
         boardViewBtn.classList.add('active');
-        tableViewBtn.classList.remove('active');
         board.classList.remove('hidden');
-        tableView.classList.remove('active');
-      } else {
-        boardViewBtn.classList.remove('active');
+      } else if (view === 'table') {
         tableViewBtn.classList.add('active');
-        board.classList.add('hidden');
         tableView.classList.add('active');
         renderTable();
+      } else if (view === 'swimlane') {
+        swimlaneViewBtn.classList.add('active');
+        swimlaneView.classList.add('active');
+        // Hide workstream ribbon in swimlane view (redundant)
+        workstreamRibbon.style.display = 'none';
+        renderSwimlanes();
       }
     }
 
     boardViewBtn.addEventListener('click', () => switchView('board'));
     tableViewBtn.addEventListener('click', () => switchView('table'));
+    swimlaneViewBtn.addEventListener('click', () => switchView('swimlane'));
 
     // Render table view
     function renderTable() {
@@ -1257,6 +1486,162 @@ _Describe the ticket here..._
 
       renderWorkstreamRibbon();
       filterBoardByWorkstream();
+    }
+
+    // Swimlane View
+    const collapsedLanes = new Set();
+
+    function renderSwimlanes() {
+      const container = document.getElementById('swimlaneView');
+
+      if (workstreams.length === 0) {
+        container.innerHTML = '<div class="swimlane-empty-state">No workstreams defined</div>';
+        return;
+      }
+
+      // Sort workstreams: high priority first, then medium, then low, then alphabetically within each group
+      const priorityOrder = { high: 0, medium: 1, low: 2 };
+      const sortedWorkstreams = [...workstreams].sort((a, b) => {
+        const priorityA = priorityOrder[a.priority] ?? 2;
+        const priorityB = priorityOrder[b.priority] ?? 2;
+        if (priorityA !== priorityB) {
+          return priorityA - priorityB;
+        }
+        return a.name.localeCompare(b.name);
+      });
+
+      container.innerHTML = '';
+
+      sortedWorkstreams.forEach(ws => {
+        const swimlane = createSwimlane(ws);
+        container.appendChild(swimlane);
+      });
+    }
+
+    function createSwimlane(ws) {
+      const swimlane = document.createElement('div');
+      swimlane.className = 'swimlane';
+      if (collapsedLanes.has(ws.slug)) {
+        swimlane.classList.add('collapsed');
+      }
+      swimlane.dataset.slug = ws.slug;
+
+      // Calculate progress
+      const progressPercent = ws.progress.total > 0
+        ? (ws.progress.completed / ws.progress.total) * 100
+        : 0;
+      const progressClass = ws.status === 'completed' ? 'completed' : '';
+
+      // Header
+      const header = document.createElement('div');
+      header.className = 'swimlane-header';
+      header.innerHTML = `
+        <span class="swimlane-collapse-toggle">&#9660;</span>
+        <span class="swimlane-name">${escapeHtml(ws.name)}</span>
+        <span class="swimlane-priority-badge priority-${ws.priority || 'medium'}">${ws.priority || 'medium'}</span>
+        <div class="swimlane-progress">
+          <div class="swimlane-progress-bar">
+            <div class="swimlane-progress-fill ${progressClass}" style="width: ${progressPercent}%"></div>
+          </div>
+          <span class="swimlane-progress-text">${ws.progress.completed}/${ws.progress.total}</span>
+        </div>
+      `;
+
+      header.addEventListener('click', () => {
+        toggleLaneCollapse(ws.slug, swimlane);
+      });
+
+      // Body with columns
+      const body = document.createElement('div');
+      body.className = 'swimlane-body';
+
+      const columns = [
+        { id: 'todo', label: 'Todo' },
+        { id: 'in-progress', label: 'In Progress' },
+        { id: 'ready-to-review', label: 'Ready to Review' },
+        { id: 'done', label: 'Done' }
+      ];
+
+      columns.forEach(col => {
+        const column = document.createElement('div');
+        column.className = 'swimlane-column';
+
+        const columnHeader = document.createElement('div');
+        columnHeader.className = 'swimlane-column-header';
+        columnHeader.textContent = col.label;
+        column.appendChild(columnHeader);
+
+        const cardsContainer = document.createElement('div');
+        cardsContainer.className = 'swimlane-cards';
+
+        // Get tickets for this workstream and column
+        const columnTickets = getWorkstreamTickets(ws, col.id);
+
+        if (columnTickets.length === 0) {
+          cardsContainer.innerHTML = '<span class="swimlane-column-empty">-</span>';
+        } else {
+          columnTickets.forEach(ticket => {
+            const card = createSwimlaneCard(ticket, col.id);
+            cardsContainer.appendChild(card);
+          });
+        }
+
+        column.appendChild(cardsContainer);
+        body.appendChild(column);
+      });
+
+      swimlane.appendChild(header);
+      swimlane.appendChild(body);
+
+      return swimlane;
+    }
+
+    function getWorkstreamTickets(ws, columnId) {
+      // Get tickets that belong to this workstream and column
+      // For 'done' column, we need to handle differently since it doesn't exist in our tickets object
+      const columnTickets = tickets[columnId] || [];
+
+      return columnTickets.filter(ticket => {
+        // Check if ticket is in workstream's ticket list
+        return ws.tickets && ws.tickets.includes(ticket.filename);
+      });
+    }
+
+    function createSwimlaneCard(ticket, column) {
+      const card = document.createElement('div');
+      card.className = 'swimlane-card';
+      card.dataset.filename = ticket.filename;
+      card.dataset.column = column;
+
+      const typeClass = `type-${ticket.type}`;
+      const isBlocked = ticket.blockedBy && ticket.blockedBy.length > 0;
+
+      let blockedBadgeHtml = '';
+      if (isBlocked) {
+        blockedBadgeHtml = '<span class="blocked-badge">Blocked</span>';
+      }
+
+      card.innerHTML = `
+        <span class="type-badge ${typeClass}">${ticket.type}</span>
+        <span class="swimlane-card-title">${escapeHtml(ticket.title)}</span>
+        ${blockedBadgeHtml}
+      `;
+
+      card.addEventListener('click', () => {
+        openEditor(ticket, column);
+      });
+
+      return card;
+    }
+
+    function toggleLaneCollapse(slug, swimlaneEl) {
+      if (collapsedLanes.has(slug)) {
+        collapsedLanes.delete(slug);
+        swimlaneEl.classList.remove('collapsed');
+      } else {
+        collapsedLanes.add(slug);
+        swimlaneEl.classList.add('collapsed');
+      }
     }
 
     function filterBoardByWorkstream() {
