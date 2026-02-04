@@ -4,7 +4,7 @@ project: dot-skills
 created: 2026-02-04
 priority: high
 session:
-git-ref: 56f92ca
+git-ref: fce3f0b
 branch:
 workstream: workstream-ui
 depends-on:
@@ -22,16 +22,16 @@ Add a third view option (Board | Table | Workstreams) showing each workstream as
 
 ## Acceptance Criteria
 
-- [ ] New "Workstreams" button in view toggle
-- [ ] Each workstream renders as a horizontal lane
-- [ ] Lane header: name, priority badge, progress bar, collapse toggle
-- [ ] Four columns per lane: Todo, In Progress, Ready to Review, Done
-- [ ] Compact ticket cards: type badge + title
-- [ ] Blocked tickets show red badge
-- [ ] Click collapse toggle to minimize lane to header only
-- [ ] Click ticket to open editor modal
-- [ ] Lanes sorted by priority (high first), then alphabetically
-- [ ] Empty state: "No workstreams defined"
+- [x] New "Workstreams" button in view toggle
+- [x] Each workstream renders as a horizontal lane
+- [x] Lane header: name, priority badge, progress bar, collapse toggle
+- [x] Four columns per lane: Todo, In Progress, Ready to Review, Done
+- [x] Compact ticket cards: type badge + title
+- [x] Blocked tickets show red badge
+- [x] Click collapse toggle to minimize lane to header only
+- [x] Click ticket to open editor modal
+- [x] Lanes sorted by priority (high first), then alphabetically
+- [x] Empty state: "No workstreams defined"
 
 ## Context
 
