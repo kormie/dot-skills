@@ -21,11 +21,11 @@ Add a workstream dropdown to the new ticket creation form, allowing users to ass
 
 ## Acceptance Criteria
 
-- [ ] New "Workstream" dropdown field in form
-- [ ] Populated from /api/workstreams endpoint
-- [ ] Optional field, defaults to "None"
-- [ ] Selected workstream added to ticket frontmatter
-- [ ] Field appears between Priority and Create button
+- [x] New "Workstream" dropdown field in form
+- [x] Populated from /api/workstreams endpoint
+- [x] Optional field, defaults to "None"
+- [x] Selected workstream added to ticket frontmatter
+- [x] Field appears between Priority and Create button
 
 ## Context
 

@@ -460,6 +460,128 @@
     .btn-create:hover {
       background: #3651d4;
     }
+
+    /* Workstream Ribbon */
+    .workstream-ribbon {
+      background: #f3f4f6;
+      padding: 8px 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      position: relative;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .workstream-ribbon-container {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      padding: 4px 0;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .workstream-ribbon-container::-webkit-scrollbar {
+      display: none;
+    }
+
+    .workstream-ribbon.has-overflow-left::before,
+    .workstream-ribbon.has-overflow-right::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 40px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .workstream-ribbon.has-overflow-left::before {
+      left: 0;
+      background: linear-gradient(to right, #f3f4f6, transparent);
+    }
+
+    .workstream-ribbon.has-overflow-right::after {
+      right: 0;
+      background: linear-gradient(to left, #f3f4f6, transparent);
+    }
+
+    .workstream-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #fff;
+      padding: 8px 14px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      border: 2px solid transparent;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .workstream-chip:hover {
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    }
+
+    .workstream-chip.active {
+      border-color: #4361ee;
+      box-shadow: 0 2px 8px rgba(67, 97, 238, 0.25);
+    }
+
+    .workstream-chip-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: #374151;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .workstream-chip-status-icon {
+      font-size: 14px;
+    }
+
+    .workstream-chip-status-icon.completed {
+      color: #16a34a;
+    }
+
+    .workstream-chip-status-icon.blocked {
+      color: #ea580c;
+    }
+
+    .workstream-progress-bar {
+      width: 60px;
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .workstream-progress-fill {
+      height: 100%;
+      background: #4361ee;
+      border-radius: 4px;
+      transition: width 0.3s;
+    }
+
+    .workstream-progress-fill.completed {
+      background: #16a34a;
+    }
+
+    .workstream-chip-fraction {
+      font-size: 12px;
+      color: #6b7280;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .workstream-empty {
+      color: #9ca3af;
+      font-size: 14px;
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
@@ -471,6 +593,13 @@
       <button class="btn-new" id="newTicketBtn">+ New Ticket</button>
     </div>
   </header>
+
+  <!-- Workstream Ribbon -->
+  <div class="workstream-ribbon" id="workstreamRibbon">
+    <div class="workstream-ribbon-container" id="workstreamContainer">
+      <span class="workstream-empty">Loading workstreams...</span>
+    </div>
+  </div>
 
   <main class="board" id="board">
     <div class="column" data-column="todo">
@@ -570,6 +699,12 @@
               <option value="high">High</option>
               <option value="medium" selected>Medium</option>
               <option value="low">Low</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="ticketWorkstream">Workstream</label>
+            <select id="ticketWorkstream">
+              <option value="">-- None --</option>
             </select>
           </div>
           <button type="submit" class="btn-create">Create Ticket</button>
@@ -841,11 +976,37 @@
     const newTicketForm = document.getElementById('newTicketForm');
     const newTicketCancelBtn = document.getElementById('newTicketCancelBtn');
 
+    // Load workstreams for dropdown
+    async function loadWorkstreamsForDropdown() {
+      const select = document.getElementById('ticketWorkstream');
+      try {
+        const response = await fetch('/api/workstreams');
+        if (!response.ok) throw new Error('Failed to fetch workstreams');
+        const data = await response.json();
+
+        // Clear existing options except the first "-- None --" option
+        select.innerHTML = '<option value="">-- None --</option>';
+
+        // Add workstream options
+        (data.workstreams || []).forEach(ws => {
+          const option = document.createElement('option');
+          option.value = ws.slug;
+          option.textContent = ws.name;
+          select.appendChild(option);
+        });
+      } catch (error) {
+        console.error('Error loading workstreams:', error);
+        // Keep the default "-- None --" option if fetch fails
+      }
+    }
+
     function openNewTicketModal() {
       newTicketModal.classList.add('active');
       document.getElementById('ticketTitle').value = '';
       document.getElementById('ticketType').value = 'feature';
       document.getElementById('ticketPriority').value = 'medium';
+      document.getElementById('ticketWorkstream').value = '';
+      loadWorkstreamsForDropdown();
     }
 
     function closeNewTicketModal() {
@@ -863,15 +1024,17 @@
       const type = document.getElementById('ticketType').value;
       const title = document.getElementById('ticketTitle').value;
       const priority = document.getElementById('ticketPriority').value;
+      const workstream = document.getElementById('ticketWorkstream').value;
 
       // Generate template content
       const today = new Date().toISOString().split('T')[0];
+      const workstreamLine = workstream ? `workstream: ${workstream}\n` : '';
       const template = `---
 type: ${type}
 title: "${title}"
 priority: ${priority}
 created: ${today}
----
+${workstreamLine}---
 
 # ${title}
 
@@ -901,8 +1064,147 @@ _Describe the ticket here..._
       openEditor(ticket, column);
     });
 
+    // Workstream ribbon
+    let workstreams = [];
+    let activeWorkstreamFilter = null;
+
+    async function loadWorkstreams() {
+      const container = document.getElementById('workstreamContainer');
+      const ribbon = document.getElementById('workstreamRibbon');
+
+      try {
+        const response = await fetch('/api/workstreams');
+        if (!response.ok) throw new Error('Failed to fetch workstreams');
+
+        const data = await response.json();
+        workstreams = data.workstreams || [];
+
+        renderWorkstreamRibbon();
+        updateOverflowIndicators();
+      } catch (error) {
+        console.error('Error loading workstreams:', error);
+        container.innerHTML = '<span class="workstream-empty">Failed to load workstreams</span>';
+      }
+    }
+
+    function renderWorkstreamRibbon() {
+      const container = document.getElementById('workstreamContainer');
+
+      if (workstreams.length === 0) {
+        container.innerHTML = '<span class="workstream-empty">No workstreams defined</span>';
+        return;
+      }
+
+      container.innerHTML = '';
+
+      workstreams.forEach(ws => {
+        const chip = document.createElement('div');
+        chip.className = 'workstream-chip';
+        if (activeWorkstreamFilter === ws.slug) {
+          chip.classList.add('active');
+        }
+        chip.dataset.slug = ws.slug;
+
+        // Status icon
+        let statusIcon = '';
+        if (ws.status === 'completed') {
+          statusIcon = '<span class="workstream-chip-status-icon completed">&#10003;</span>';
+        } else if (ws.status === 'blocked') {
+          statusIcon = '<span class="workstream-chip-status-icon blocked">&#9888;</span>';
+        }
+
+        // Progress calculation
+        const progressPercent = ws.progress.total > 0
+          ? (ws.progress.completed / ws.progress.total) * 100
+          : 0;
+        const progressClass = ws.status === 'completed' ? 'completed' : '';
+
+        chip.innerHTML = `
+          <span class="workstream-chip-name">${statusIcon}${escapeHtml(ws.name)}</span>
+          <div class="workstream-progress-bar">
+            <div class="workstream-progress-fill ${progressClass}" style="width: ${progressPercent}%"></div>
+          </div>
+          <span class="workstream-chip-fraction">${ws.progress.completed}/${ws.progress.total}</span>
+        `;
+
+        chip.addEventListener('click', () => toggleWorkstreamFilter(ws.slug));
+
+        container.appendChild(chip);
+      });
+    }
+
+    function toggleWorkstreamFilter(slug) {
+      if (activeWorkstreamFilter === slug) {
+        // Clear filter
+        activeWorkstreamFilter = null;
+      } else {
+        // Set filter
+        activeWorkstreamFilter = slug;
+      }
+
+      renderWorkstreamRibbon();
+      filterBoardByWorkstream();
+    }
+
+    function filterBoardByWorkstream() {
+      // Get all cards
+      const allCards = document.querySelectorAll('.card');
+
+      if (!activeWorkstreamFilter) {
+        // Show all cards
+        allCards.forEach(card => {
+          card.style.display = '';
+        });
+        updateColumnCounts();
+        return;
+      }
+
+      // Find the workstream
+      const ws = workstreams.find(w => w.slug === activeWorkstreamFilter);
+      if (!ws) return;
+
+      // Filter cards based on workstream tickets
+      allCards.forEach(card => {
+        const filename = card.dataset.filename;
+        if (ws.tickets.includes(filename)) {
+          card.style.display = '';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      updateColumnCounts();
+    }
+
+    function updateColumnCounts() {
+      ['todo', 'in-progress', 'ready-to-review'].forEach(columnId => {
+        const container = document.getElementById(`cards-${columnId}`);
+        const countEl = document.getElementById(`count-${columnId}`);
+        const visibleCards = container.querySelectorAll('.card:not([style*="display: none"])');
+        countEl.textContent = visibleCards.length;
+      });
+    }
+
+    function updateOverflowIndicators() {
+      const ribbon = document.getElementById('workstreamRibbon');
+      const container = document.getElementById('workstreamContainer');
+
+      const hasOverflowLeft = container.scrollLeft > 0;
+      const hasOverflowRight = container.scrollLeft < (container.scrollWidth - container.clientWidth - 1);
+
+      ribbon.classList.toggle('has-overflow-left', hasOverflowLeft);
+      ribbon.classList.toggle('has-overflow-right', hasOverflowRight);
+    }
+
+    // Listen for scroll events on ribbon container
+    document.getElementById('workstreamContainer').addEventListener('scroll', updateOverflowIndicators);
+
+    // Re-check overflow on window resize
+    window.addEventListener('resize', updateOverflowIndicators);
+
     // Initial load
     loadTickets();
+    loadWorkstreams();
   </script>
 </body>
 </html>
