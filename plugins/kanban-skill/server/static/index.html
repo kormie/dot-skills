@@ -253,6 +253,45 @@
       color: #fff;
     }
 
+    /* Done toggle button */
+    .btn-done-toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #e5e7eb;
+      color: #374151;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-left: 8px;
+    }
+
+    .btn-done-toggle:hover {
+      background: #d1d5db;
+    }
+
+    .btn-done-toggle.active {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    .done-toggle-circle {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      background: transparent;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .btn-done-toggle.active .done-toggle-circle {
+      background: currentColor;
+    }
+
     /* Table view */
     .table-view {
       display: none;
@@ -866,6 +905,10 @@
       <button class="btn-toggle active" id="boardViewBtn">Board</button>
       <button class="btn-toggle" id="tableViewBtn">Table</button>
       <button class="btn-toggle" id="swimlaneViewBtn">Workstreams</button>
+      <button class="btn-done-toggle" id="doneToggleBtn">
+        <span class="done-toggle-circle"></span>
+        Show Done
+      </button>
       <button class="btn-new" id="newTicketBtn">+ New Ticket</button>
     </div>
   </header>
@@ -900,6 +943,14 @@
         <span class="column-count" id="count-ready-to-review">0</span>
       </div>
       <div class="cards" id="cards-ready-to-review"></div>
+    </div>
+
+    <div class="column" data-column="done" id="doneColumn" style="display: none;">
+      <div class="column-header">
+        <span>Done</span>
+        <span class="column-count" id="count-done">0</span>
+      </div>
+      <div class="cards" id="cards-done"></div>
     </div>
   </main>
 
@@ -1000,13 +1051,15 @@
     let tickets = {
       todo: [],
       'in-progress': [],
-      'ready-to-review': []
+      'ready-to-review': [],
+      done: []
     };
     let currentView = 'board';
     let currentEditTicket = null;
     let currentEditColumn = null;
     let isNewTicket = false;
     let previewDebounceTimer = null;
+    let showDone = localStorage.getItem('kanban-show-done') === 'true';
 
     // Render a single card
     function renderCard(ticket, column) {
@@ -1112,17 +1165,27 @@
     // Fetch and render all tickets
     async function loadTickets() {
       const board = document.getElementById('board');
+      const doneColumn = document.getElementById('doneColumn');
 
       try {
-        // Fetch with includeDone for swimlane view compatibility
+        // Always fetch with includeDone (needed for swimlane counts)
         const response = await fetch('/api/tickets?includeDone=true');
         if (!response.ok) throw new Error('Failed to fetch tickets');
 
         tickets = await response.json();
+        tickets.done = tickets.done || [];
 
         renderColumn('todo', tickets.todo || []);
         renderColumn('in-progress', tickets['in-progress'] || []);
         renderColumn('ready-to-review', tickets['ready-to-review'] || []);
+
+        // Handle Done column visibility in board view
+        if (showDone) {
+          doneColumn.style.display = '';
+          renderColumn('done', tickets.done);
+        } else {
+          doneColumn.style.display = 'none';
+        }
       } catch (error) {
         console.error('Error loading tickets:', error);
         board.innerHTML = `
@@ -1181,6 +1244,36 @@
     tableViewBtn.addEventListener('click', () => switchView('table'));
     swimlaneViewBtn.addEventListener('click', () => switchView('swimlane'));
 
+    // Done toggle
+    const doneToggleBtn = document.getElementById('doneToggleBtn');
+
+    function updateDoneToggleUI() {
+      if (showDone) {
+        doneToggleBtn.classList.add('active');
+      } else {
+        doneToggleBtn.classList.remove('active');
+      }
+    }
+
+    function toggleShowDone() {
+      showDone = !showDone;
+      localStorage.setItem('kanban-show-done', showDone);
+      updateDoneToggleUI();
+      loadTickets().then(() => {
+        // Re-render current view
+        if (currentView === 'table') {
+          renderTable();
+        } else if (currentView === 'swimlane') {
+          renderSwimlanes();
+        }
+      });
+    }
+
+    doneToggleBtn.addEventListener('click', toggleShowDone);
+
+    // Initialize done toggle UI
+    updateDoneToggleUI();
+
     // Render table view
     function renderTable() {
       const tbody = document.getElementById('tableBody');
@@ -1189,10 +1282,15 @@
       const statusLabels = {
         'todo': 'Todo',
         'in-progress': 'In Progress',
-        'ready-to-review': 'Ready to Review'
+        'ready-to-review': 'Ready to Review',
+        'done': 'Done'
       };
 
-      ['todo', 'in-progress', 'ready-to-review'].forEach(column => {
+      const columnsToShow = showDone
+        ? ['todo', 'in-progress', 'ready-to-review', 'done']
+        : ['todo', 'in-progress', 'ready-to-review'];
+
+      columnsToShow.forEach(column => {
         (tickets[column] || []).forEach(ticket => {
           const tr = document.createElement('tr');
           const isBlocked = ticket.blockedBy && ticket.blockedBy.length > 0;
@@ -1579,6 +1677,9 @@ _Describe the ticket here..._
 
         if (columnTickets.length === 0) {
           cardsContainer.innerHTML = '<span class="swimlane-column-empty">-</span>';
+        } else if (col.id === 'done' && !showDone) {
+          // For done column when showDone is off, just show count
+          cardsContainer.innerHTML = `<span class="swimlane-column-empty">${columnTickets.length} completed</span>`;
         } else {
           columnTickets.forEach(ticket => {
             const card = createSwimlaneCard(ticket, col.id);
