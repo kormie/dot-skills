@@ -87,6 +87,65 @@ async function isTicketComplete(slug: string, root: string): Promise<boolean> {
   }
 }
 
+function isWorkstreamComplete(workstream: WorkstreamMeta): boolean {
+  return workstream.progress.completed === workstream.progress.total && workstream.progress.total > 0;
+}
+
+interface TicketFrontmatter {
+  workstream?: string;
+  "depends-on"?: string[];
+  "depends-on-workstreams"?: string[];
+  [key: string]: string | string[] | undefined;
+}
+
+async function computeBlockedBy(
+  ticket: { slug: string; frontmatter: TicketFrontmatter },
+  workstreams: WorkstreamMeta[],
+  root: string
+): Promise<string[]> {
+  const blockers: string[] = [];
+
+  // 1. Check depends-on slugs against ready-to-review/done
+  const dependsOn = ticket.frontmatter["depends-on"] || [];
+  for (const depSlug of dependsOn) {
+    if (!(await isTicketComplete(depSlug, root))) {
+      blockers.push(depSlug);
+    }
+  }
+
+  // 2. Check depends-on-workstreams for workstream completion
+  const dependsOnWorkstreams = ticket.frontmatter["depends-on-workstreams"] || [];
+  for (const wsSlug of dependsOnWorkstreams) {
+    const ws = workstreams.find(w => w.slug === wsSlug);
+    if (ws && !isWorkstreamComplete(ws)) {
+      blockers.push(wsSlug);
+    }
+  }
+
+  // 3. Check workstream predecessor completion (implicit ordering)
+  const ticketWorkstream = ticket.frontmatter.workstream;
+  if (ticketWorkstream) {
+    const ws = workstreams.find(w => w.slug === ticketWorkstream);
+    if (ws) {
+      const ticketIndex = ws.tickets.indexOf(ticket.slug);
+      if (ticketIndex > 0) {
+        // Check all predecessors in the workstream
+        for (let i = 0; i < ticketIndex; i++) {
+          const predecessorSlug = ws.tickets[i];
+          if (!(await isTicketComplete(predecessorSlug, root))) {
+            // Only add if not already in blockers
+            if (!blockers.includes(predecessorSlug)) {
+              blockers.push(predecessorSlug);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return blockers;
+}
+
 async function getWorkstreams(root: string): Promise<WorkstreamMeta[]> {
   const workstreams: WorkstreamMeta[] = [];
   const glob = new Glob("*.md");
@@ -139,7 +198,11 @@ async function getWorkstreams(root: string): Promise<WorkstreamMeta[]> {
   return workstreams;
 }
 
-async function getTicketsInColumn(root: string, column: string): Promise<TicketMeta[]> {
+async function getTicketsInColumn(
+  root: string,
+  column: string,
+  workstreams: WorkstreamMeta[]
+): Promise<TicketMeta[]> {
   const tickets: TicketMeta[] = [];
   const glob = new Glob("*.md");
   const dir = `${root}/kanban/${column}`;
@@ -148,12 +211,30 @@ async function getTicketsInColumn(root: string, column: string): Promise<TicketM
     for await (const filename of glob.scan(dir)) {
       const content = await Bun.file(`${dir}/${filename}`).text();
       const fm = parseFrontmatter(content);
+      const slug = filename.replace(".md", "");
+
+      // Compute blocking information
+      const blockedBy = await computeBlockedBy(
+        {
+          slug,
+          frontmatter: {
+            workstream: fm.workstream as string | undefined,
+            "depends-on": fm["depends-on"] as string[] | undefined,
+            "depends-on-workstreams": fm["depends-on-workstreams"] as string[] | undefined,
+          },
+        },
+        workstreams,
+        root
+      );
+
       tickets.push({
         filename,
         title: extractTitle(content),
-        type: fm.type || "unknown",
-        priority: fm.priority || "medium",
-        created: fm.created || "",
+        type: (fm.type as string) || "unknown",
+        priority: (fm.priority as string) || "medium",
+        created: (fm.created as string) || "",
+        workstream: fm.workstream as string | undefined,
+        blockedBy: blockedBy.length > 0 ? blockedBy : undefined,
       });
     }
   } catch {
@@ -169,10 +250,11 @@ export async function handleApi(req: Request, url: URL, root: string): Promise<R
 
   // GET /api/tickets
   if (path === "/api/tickets" && method === "GET") {
+    const workstreams = await getWorkstreams(root);
     const response: TicketsResponse = {
-      todo: await getTicketsInColumn(root, "todo"),
-      "in-progress": await getTicketsInColumn(root, "in-progress"),
-      "ready-to-review": await getTicketsInColumn(root, "ready-to-review"),
+      todo: await getTicketsInColumn(root, "todo", workstreams),
+      "in-progress": await getTicketsInColumn(root, "in-progress", workstreams),
+      "ready-to-review": await getTicketsInColumn(root, "ready-to-review", workstreams),
     };
     return Response.json(response);
   }

@@ -21,11 +21,11 @@ Implement server-side blocking computation that determines whether a ticket is b
 
 ## Acceptance Criteria
 
-- [ ] Check `depends-on` slugs against ready-to-review/done directories
-- [ ] Check `depends-on-workstreams` for workstream completion
-- [ ] Check workstream predecessor completion (implicit ordering)
-- [ ] Return array of blocker slugs (empty if unblocked)
-- [ ] Helper function `isTicketComplete(slug, root)` works correctly
+- [x] Check `depends-on` slugs against ready-to-review/done directories
+- [x] Check `depends-on-workstreams` for workstream completion
+- [x] Check workstream predecessor completion (implicit ordering)
+- [x] Return array of blocker slugs (empty if unblocked)
+- [x] Helper function `isTicketComplete(slug, root)` works correctly
 
 ## Context
 
