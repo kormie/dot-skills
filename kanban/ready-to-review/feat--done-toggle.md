@@ -4,7 +4,7 @@ project: dot-skills
 created: 2026-02-04
 priority: medium
 session:
-git-ref: 56f92ca
+git-ref: 9b9f062
 branch:
 workstream: workstream-ui
 depends-on:
@@ -22,14 +22,14 @@ Add a toggle button to show/hide completed work across all views.
 
 ## Acceptance Criteria
 
-- [ ] Toggle button in header: "Show Done"
-- [ ] Off by default (empty circle indicator)
-- [ ] On state: filled circle, highlighted button
-- [ ] State persists in localStorage
-- [ ] Board view: fourth "Done" column appears when on
-- [ ] Table view: includes done tickets when on
-- [ ] Swimlane view: Done column shows cards when on, just count when off
-- [ ] Uses `?includeDone=true` API param
+- [x] Toggle button in header: "Show Done"
+- [x] Off by default (empty circle indicator)
+- [x] On state: filled circle, highlighted button
+- [x] State persists in localStorage
+- [x] Board view: fourth "Done" column appears when on
+- [x] Table view: includes done tickets when on
+- [x] Swimlane view: Done column shows cards when on, just count when off
+- [x] Uses `?includeDone=true` API param
 
 ## Context
 
