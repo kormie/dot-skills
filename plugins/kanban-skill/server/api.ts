@@ -28,6 +28,7 @@ interface TicketsResponse {
   todo: TicketMeta[];
   "in-progress": TicketMeta[];
   "ready-to-review": TicketMeta[];
+  done?: TicketMeta[];
 }
 
 function parseFrontmatter(content: string): Record<string, string | string[]> {
@@ -250,12 +251,16 @@ export async function handleApi(req: Request, url: URL, root: string): Promise<R
 
   // GET /api/tickets
   if (path === "/api/tickets" && method === "GET") {
+    const includeDone = url.searchParams.get("includeDone") === "true";
     const workstreams = await getWorkstreams(root);
     const response: TicketsResponse = {
       todo: await getTicketsInColumn(root, "todo", workstreams),
       "in-progress": await getTicketsInColumn(root, "in-progress", workstreams),
       "ready-to-review": await getTicketsInColumn(root, "ready-to-review", workstreams),
     };
+    if (includeDone) {
+      response.done = await getTicketsInColumn(root, "done", workstreams);
+    }
     return Response.json(response);
   }
 

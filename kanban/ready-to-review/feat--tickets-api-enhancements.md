@@ -5,7 +5,7 @@ created: 2026-02-04
 priority: high
 session:
 git-ref: 56f92ca
-branch:
+branch: main
 workstream: workstream-ui
 depends-on:
   - feat--blocking-computation
@@ -21,11 +21,11 @@ Enhance the `GET /api/tickets` endpoint to include workstream and blocking infor
 
 ## Acceptance Criteria
 
-- [ ] Each ticket includes `workstream` field (slug or null)
-- [ ] Each ticket includes `blockedBy` array (slugs or empty)
-- [ ] New query param `?includeDone=true` fetches done directory
-- [ ] Default behavior (no param) excludes done for performance
-- [ ] Parse `depends-on` and `depends-on-workstreams` from frontmatter
+- [x] Each ticket includes `workstream` field (slug or null)
+- [x] Each ticket includes `blockedBy` array (slugs or empty)
+- [x] New query param `?includeDone=true` fetches done directory
+- [x] Default behavior (no param) excludes done for performance
+- [x] Parse `depends-on` and `depends-on-workstreams` from frontmatter
 
 ## Context
 
