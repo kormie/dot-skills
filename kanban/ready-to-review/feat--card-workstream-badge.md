@@ -21,11 +21,11 @@ Add a small workstream tag to ticket cards in board view, showing which workstre
 
 ## Acceptance Criteria
 
-- [ ] Cards show workstream tag below title (link icon + name)
-- [ ] Only shown if ticket has a workstream
-- [ ] Muted gray styling
-- [ ] Clicking tag filters board to that workstream
-- [ ] Table view has new "Workstream" column
+- [x] Cards show workstream tag below title (link icon + name)
+- [x] Only shown if ticket has a workstream
+- [x] Muted gray styling
+- [x] Clicking tag filters board to that workstream
+- [x] Table view has new "Workstream" column
 
 ## Context
 
