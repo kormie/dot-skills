@@ -21,15 +21,15 @@ Add a horizontal ribbon below the header showing workstream progress chips. Each
 
 ## Acceptance Criteria
 
-- [ ] Ribbon displays below header
-- [ ] One chip per workstream with name + progress bar + fraction
-- [ ] Clicking chip filters board to that workstream
-- [ ] Clicking again clears filter
-- [ ] Active filter has highlighted border
-- [ ] Completed workstreams show green checkmark
-- [ ] Blocked workstreams show orange warning icon
-- [ ] Horizontal scroll with fade indicators on overflow
-- [ ] Empty state when no workstreams defined
+- [x] Ribbon displays below header
+- [x] One chip per workstream with name + progress bar + fraction
+- [x] Clicking chip filters board to that workstream
+- [x] Clicking again clears filter
+- [x] Active filter has highlighted border
+- [x] Completed workstreams show green checkmark
+- [x] Blocked workstreams show orange warning icon
+- [x] Horizontal scroll with fade indicators on overflow
+- [x] Empty state when no workstreams defined
 
 ## Context
 
