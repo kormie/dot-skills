@@ -5,7 +5,7 @@ created: 2026-02-04
 priority: high
 session:
 git-ref: 56f92ca
-branch:
+branch: main
 workstream: workstream-ui
 depends-on: []
 depends-on-workstreams: []
@@ -20,11 +20,11 @@ Create a new `GET /api/workstreams` endpoint that returns all workstreams with c
 
 ## Acceptance Criteria
 
-- [ ] Endpoint parses all files in `kanban/workstreams/*.md`
-- [ ] Returns workstream slug, name, priority, status
-- [ ] Computes progress by checking ticket locations (todo/in-progress/ready-to-review/done)
-- [ ] Returns tickets list for each workstream
-- [ ] Handles missing workstreams directory gracefully
+- [x] Endpoint parses all files in `kanban/workstreams/*.md`
+- [x] Returns workstream slug, name, priority, status
+- [x] Computes progress by checking ticket locations (todo/in-progress/ready-to-review/done)
+- [x] Returns tickets list for each workstream
+- [x] Handles missing workstreams directory gracefully
 
 ## Context
 

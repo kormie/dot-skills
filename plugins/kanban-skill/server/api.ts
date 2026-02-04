@@ -7,6 +7,21 @@ interface TicketMeta {
   type: string;
   priority: string;
   created: string;
+  workstream?: string;
+  blockedBy?: string[];
+}
+
+interface WorkstreamMeta {
+  slug: string;
+  name: string;
+  priority: string;
+  status: string;
+  progress: { completed: number; total: number };
+  tickets: string[];
+}
+
+interface WorkstreamsResponse {
+  workstreams: WorkstreamMeta[];
 }
 
 interface TicketsResponse {
@@ -15,15 +30,36 @@ interface TicketsResponse {
   "ready-to-review": TicketMeta[];
 }
 
-function parseFrontmatter(content: string): Record<string, string> {
+function parseFrontmatter(content: string): Record<string, string | string[]> {
   const match = content.match(/^---\n([\s\S]*?)\n---/);
   if (!match) return {};
 
-  const frontmatter: Record<string, string> = {};
-  for (const line of match[1].split("\n")) {
-    const [key, ...valueParts] = line.split(":");
-    if (key && valueParts.length) {
-      frontmatter[key.trim()] = valueParts.join(":").trim();
+  const frontmatter: Record<string, string | string[]> = {};
+  const lines = match[1].split("\n");
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const colonIndex = line.indexOf(":");
+    if (colonIndex === -1) continue;
+
+    const key = line.slice(0, colonIndex).trim();
+    const value = line.slice(colonIndex + 1).trim();
+
+    // Check for YAML list (inline [] or multiline -)
+    if (value.startsWith("[")) {
+      // Inline array: [item1, item2]
+      const items = value.slice(1, -1).split(",").map(s => s.trim()).filter(Boolean);
+      frontmatter[key] = items;
+    } else if (value === "" && i + 1 < lines.length && lines[i + 1].trim().startsWith("-")) {
+      // Multiline array
+      const items: string[] = [];
+      while (i + 1 < lines.length && lines[i + 1].trim().startsWith("-")) {
+        i++;
+        items.push(lines[i].trim().slice(1).trim());
+      }
+      frontmatter[key] = items;
+    } else {
+      frontmatter[key] = value;
     }
   }
   return frontmatter;
@@ -32,6 +68,75 @@ function parseFrontmatter(content: string): Record<string, string> {
 function extractTitle(content: string): string {
   const match = content.match(/^#\s+(.+)$/m);
   return match ? match[1] : "Untitled";
+}
+
+async function isTicketComplete(slug: string, root: string): Promise<boolean> {
+  const reviewPath = `${root}/kanban/ready-to-review/${slug}.md`;
+  const donePath = `${root}/kanban/done/${slug}.md`;
+
+  try {
+    await Bun.file(reviewPath).text();
+    return true;
+  } catch {
+    try {
+      await Bun.file(donePath).text();
+      return true;
+    } catch {
+      return false;
+    }
+  }
+}
+
+async function getWorkstreams(root: string): Promise<WorkstreamMeta[]> {
+  const workstreams: WorkstreamMeta[] = [];
+  const glob = new Glob("*.md");
+  const dir = `${root}/kanban/workstreams`;
+
+  try {
+    for await (const filename of glob.scan(dir)) {
+      const content = await Bun.file(`${dir}/${filename}`).text();
+      const fm = parseFrontmatter(content);
+      const title = extractTitle(content);
+
+      const tickets = (fm.tickets as string[]) || [];
+
+      // Compute progress by checking ticket locations
+      let completed = 0;
+      for (const ticketSlug of tickets) {
+        if (await isTicketComplete(ticketSlug, root)) {
+          completed++;
+        }
+      }
+
+      // Derive status
+      let status = fm.status as string || "active";
+      if (completed === tickets.length && tickets.length > 0) {
+        status = "completed";
+      }
+
+      workstreams.push({
+        slug: (fm.slug as string) || filename.replace(".md", ""),
+        name: title,
+        priority: (fm.priority as string) || "medium",
+        status,
+        progress: { completed, total: tickets.length },
+        tickets,
+      });
+    }
+  } catch {
+    // Directory may not exist
+  }
+
+  // Sort by priority (high first), then alphabetically
+  const priorityOrder: Record<string, number> = { high: 0, medium: 1, low: 2 };
+  workstreams.sort((a, b) => {
+    const pa = priorityOrder[a.priority] ?? 1;
+    const pb = priorityOrder[b.priority] ?? 1;
+    if (pa !== pb) return pa - pb;
+    return a.name.localeCompare(b.name);
+  });
+
+  return workstreams;
 }
 
 async function getTicketsInColumn(root: string, column: string): Promise<TicketMeta[]> {
@@ -69,6 +174,13 @@ export async function handleApi(req: Request, url: URL, root: string): Promise<R
       "in-progress": await getTicketsInColumn(root, "in-progress"),
       "ready-to-review": await getTicketsInColumn(root, "ready-to-review"),
     };
+    return Response.json(response);
+  }
+
+  // GET /api/workstreams
+  if (path === "/api/workstreams" && method === "GET") {
+    const workstreams = await getWorkstreams(root);
+    const response: WorkstreamsResponse = { workstreams };
     return Response.json(response);
   }
 
