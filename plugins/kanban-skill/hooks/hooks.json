@@ -1,9 +1,14 @@
 {
-  "SessionEnd": [{
-    "hooks": [{
-      "type": "command",
-      "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/stop-server-on-exit.sh",
-      "timeout": 10
-    }]
-  }]
+  "hooks": [
+    {
+      "event": "SessionEnd",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/stop-server-on-exit.sh",
+          "timeout": 10
+        }
+      ]
+    }
+  ]
 }

@@ -1,7 +1,7 @@
 ---
-name: kanban-serve
+name: serve
 description: Start the kanban board web viewer
-allowed-tools: Bash
+allowed-tools: [Bash]
 ---
 
 # Kanban Serve
