@@ -13,11 +13,85 @@ Maintain the persistent kanban board at `kanban/` in the repo root. This board t
 ```
 kanban/
 ├── README.md          # Board overview and conventions
+├── workstreams/       # Workstream definitions
 ├── todo/              # Work not yet started
 ├── in-progress/       # Actively being worked on
 ├── ready-to-review/   # Complete, awaiting human review
 └── reviews/           # Human-readable review/verification guides
 ```
+
+## Workstreams
+
+A **workstream** is a logical grouping of related tickets that share a cohesive goal. Workstreams:
+
+- **Contain internal dependencies** — tickets within a workstream typically depend on each other
+- **Minimize external dependencies** — cross-workstream dependencies should be rare and explicit
+- **Enable parallel execution** — independent workstreams can be worked on simultaneously
+- **Provide progress visibility** — completing a workstream is a meaningful milestone
+
+### Workstream File Format
+
+Each workstream is defined in `kanban/workstreams/<slug>.md`:
+
+```markdown
+---
+slug: voice-extraction
+status: active
+priority: high
+created: YYYY-MM-DD
+tickets:
+  - refactor--extract-base-voice-step
+  - docs--document-voice-steps
+depends-on-workstreams: []
+tags: []
+---
+
+# Voice Extraction
+
+## Goal
+
+<1-3 sentences describing what this workstream achieves when complete>
+
+## Scope
+
+<What's included and explicitly excluded>
+
+## Success Criteria
+
+- [ ] <measurable outcome 1>
+- [ ] <measurable outcome 2>
+
+## Notes
+
+<Implementation strategy, risks, open questions>
+```
+
+### Workstream Frontmatter Fields
+
+| Field | Required | Type | Description |
+|-------|----------|------|-------------|
+| `slug` | yes | string | Unique identifier matching filename |
+| `status` | yes | enum | `active`, `blocked`, `completed` |
+| `priority` | yes | enum | `high`, `medium`, `low` |
+| `created` | yes | date | `YYYY-MM-DD` |
+| `tickets` | yes | list | Ordered list of ticket slugs in this workstream |
+| `depends-on-workstreams` | no | list | Other workstream slugs this workstream blocks on |
+| `tags` | no | list | Freeform tags for filtering |
+
+### Workstream Rules
+
+1. **A ticket belongs to at most one workstream.** If work spans multiple concerns, split the ticket.
+
+2. **Ticket order in the `tickets` list is significant.** It represents the recommended execution order within the workstream.
+
+3. **Workstream status is derived:**
+   - `completed` — all tickets in `ready-to-review/` or `done/`
+   - `blocked` — depends on incomplete workstream, or all tickets are blocked
+   - `active` — has at least one unblocked ticket
+
+4. **Cross-workstream dependencies should be explicit.** Use `depends-on-workstreams` when an entire workstream must complete before another can start.
+
+5. **Keep workstreams focused.** 3-8 tickets is ideal. Larger workstreams should be split.
 
 ## Ticket Types
 
@@ -60,7 +134,9 @@ priority: medium
 session: <claude-code-session-url>
 git-ref: <short-sha>
 branch:
+workstream: <workstream-slug-or-empty>
 depends-on: []
+depends-on-workstreams: []
 tags: []
 ---
 
@@ -98,15 +174,41 @@ so a future session can pick up the ticket without losing the thread.>
 | `session` | yes | string | Claude Code session URL where the ticket was created (e.g. `https://claude.ai/code/session_abc123`). Provides backlink to the conversation that motivated the ticket. |
 | `git-ref` | yes | string | Short SHA of the commit HEAD when the ticket was created (e.g. `9494eca`). Anchors the ticket to a specific codebase state. |
 | `branch` | no | string | Git branch name. Null/empty until work starts. |
+| `workstream` | no | string | Workstream slug this ticket belongs to (e.g. `voice-extraction`). Empty if not part of a workstream. |
 | `depends-on` | no | list | Slugs of tickets this blocks on (e.g. `[infra--propcheck-streamdata-setup]`) |
+| `depends-on-workstreams` | no | list | Workstream slugs this ticket blocks on (e.g. `[guardrails]`). Ticket is blocked until all tickets in the workstream are complete. |
 | `tags` | no | list | Freeform tags for filtering/grouping (e.g. `[property-testing, ai]`) |
 
 ### Notes on Frontmatter
 
 - The `Review` link is **not** in frontmatter — it's always derivable from the filename: `../reviews/<type>--<slug>.md`
 - `depends-on` uses ticket slugs (filenames without `.md`), not full paths
+- `depends-on-workstreams` uses workstream slugs (filenames without `.md`), not full paths
 - `project` should match the application directory name in the repo
 - `tags` are freeform; use them for cross-cutting concerns that don't fit the type system
+
+### Blocking Logic
+
+A ticket is **blocked** if ANY of these conditions are true:
+
+1. **Ticket dependency not satisfied:** Any slug in `depends-on` does not have a matching file in `kanban/ready-to-review/` or `kanban/done/`
+
+2. **Workstream dependency not satisfied:** Any slug in `depends-on-workstreams` refers to a workstream that is not `completed` (i.e., not all of its tickets are in `ready-to-review/` or `done/`)
+
+3. **Workstream predecessor not done:** The ticket belongs to a workstream, and there's an earlier ticket in that workstream's `tickets` list that is not yet in `ready-to-review/` or `done/`
+
+**Example blocking scenarios:**
+
+```yaml
+# Blocked by ticket dependency
+depends-on: [feat--modulator-resources]  # blocked until this ticket is done
+
+# Blocked by workstream dependency
+depends-on-workstreams: [guardrails]  # blocked until ALL guardrails tickets done
+
+# Blocked by workstream order (implicit)
+workstream: voice-extraction  # if earlier tickets in workstream aren't done, blocked
+```
 
 ## Review File Format
 
