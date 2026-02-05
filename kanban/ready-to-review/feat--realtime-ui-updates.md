@@ -21,11 +21,11 @@ Implement a mechanism for the kanban web UI to automatically update when tickets
 
 ## Acceptance Criteria
 
-- [ ] UI updates automatically when kanban files change
-- [ ] No manual refresh required
-- [ ] Minimal latency (< 2 seconds from file change to UI update)
-- [ ] Efficient - doesn't spam the server or cause performance issues
-- [ ] Works across all views (board, table, swimlane)
+- [x] UI updates automatically when kanban files change
+- [x] No manual refresh required
+- [x] Minimal latency (< 2 seconds from file change to UI update)
+- [x] Efficient - doesn't spam the server or cause performance issues
+- [x] Works across all views (board, table, swimlane)
 
 ## Context
 
