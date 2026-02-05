@@ -1,5 +1,42 @@
 import { Glob } from "bun";
+import { watch, type FSWatcher } from "fs";
 import { gitCommit } from "./git";
+
+// SSE client management
+const sseClients = new Set<WritableStreamDefaultWriter<Uint8Array>>();
+let fileWatcher: FSWatcher | null = null;
+let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+function startFileWatcher(root: string) {
+  if (fileWatcher) return;
+
+  const kanbanDir = `${root}/kanban`;
+
+  try {
+    fileWatcher = watch(kanbanDir, { recursive: true }, (_event, _filename) => {
+      // Debounce rapid changes (e.g., multiple file operations)
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        notifyClients();
+      }, 100);
+    });
+  } catch (err) {
+    console.error("Failed to start file watcher:", err);
+  }
+}
+
+function notifyClients() {
+  const encoder = new TextEncoder();
+  const data = encoder.encode("data: refresh\n\n");
+
+  for (const writer of sseClients) {
+    try {
+      writer.write(data);
+    } catch {
+      // Client disconnected, will be cleaned up
+    }
+  }
+}
 
 interface TicketMeta {
   filename: string;
@@ -248,6 +285,53 @@ async function getTicketsInColumn(
 export async function handleApi(req: Request, url: URL, root: string): Promise<Response> {
   const path = url.pathname;
   const method = req.method;
+
+  // GET /api/events - Server-Sent Events for real-time updates
+  if (path === "/api/events" && method === "GET") {
+    // Start file watcher if not already running
+    startFileWatcher(root);
+
+    // Create a readable stream for SSE
+    const stream = new ReadableStream({
+      start(controller) {
+        const encoder = new TextEncoder();
+
+        // Send initial connection message
+        controller.enqueue(encoder.encode("data: connected\n\n"));
+
+        // Create writer for this client
+        const writer = {
+          write: (data: Uint8Array) => {
+            try {
+              controller.enqueue(data);
+            } catch {
+              // Stream closed
+            }
+          },
+        } as unknown as WritableStreamDefaultWriter<Uint8Array>;
+
+        sseClients.add(writer);
+
+        // Handle client disconnect via AbortSignal
+        req.signal.addEventListener("abort", () => {
+          sseClients.delete(writer);
+          try {
+            controller.close();
+          } catch {
+            // Already closed
+          }
+        });
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+      },
+    });
+  }
 
   // GET /api/tickets
   if (path === "/api/tickets" && method === "GET") {

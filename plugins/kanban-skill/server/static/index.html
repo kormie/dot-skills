@@ -1804,6 +1804,34 @@ _Describe the ticket here..._
     // Initial load
     loadTickets();
     loadWorkstreams();
+
+    // Server-Sent Events for real-time updates
+    function connectSSE() {
+      const events = new EventSource('/api/events');
+
+      events.onmessage = (event) => {
+        if (event.data === 'refresh') {
+          // Reload all data
+          loadTickets().then(() => {
+            if (currentView === 'table') {
+              renderTable();
+            } else if (currentView === 'swimlane') {
+              renderSwimlanes();
+            }
+          });
+          loadWorkstreams();
+        }
+      };
+
+      events.onerror = () => {
+        // Connection lost, try to reconnect after 3 seconds
+        events.close();
+        setTimeout(connectSSE, 3000);
+      };
+    }
+
+    // Start SSE connection
+    connectSSE();
   </script>
 </body>
 </html>
