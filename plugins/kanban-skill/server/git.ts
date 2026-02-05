@@ -1,15 +1,29 @@
 import { $ } from "bun";
 
-export async function gitCommit(filepath: string, action: "create" | "update"): Promise<boolean> {
+export interface GitResult {
+  success: boolean;
+  error?: string;
+}
+
+export async function gitCommit(filepath: string, action: "create" | "update"): Promise<GitResult> {
   const filename = filepath.split("/").pop();
   const message = `kanban: ${action} ${filename}`;
 
   try {
     await $`git add ${filepath}`.quiet();
-    await $`git commit -m ${message}`.quiet();
-    return true;
   } catch (error) {
-    console.warn(`Git commit failed: ${error}`);
-    return false;
+    const msg = `Git staging failed for ${filename}: ${error}`;
+    console.warn(msg);
+    return { success: false, error: msg };
   }
+
+  try {
+    await $`git commit -m ${message}`.quiet();
+  } catch (error) {
+    const msg = `Git commit failed for ${filename}: ${error}`;
+    console.warn(msg);
+    return { success: false, error: msg };
+  }
+
+  return { success: true };
 }
