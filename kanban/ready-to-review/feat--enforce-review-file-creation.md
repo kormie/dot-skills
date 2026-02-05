@@ -20,10 +20,10 @@ Agents frequently skip the step of creating a review file in `kanban/reviews/` w
 
 ## Acceptance Criteria
 
-- [ ] Agent is reminded/blocked when moving a ticket to `ready-to-review/` without a corresponding review file
-- [ ] The enforcement mechanism fires reliably without requiring agents to remember the step
-- [ ] Review file template or guidance is provided at the point of enforcement
-- [ ] Solution integrates cleanly with existing kanban-skill plugin architecture
+- [x] Agent is reminded/blocked when moving a ticket to `ready-to-review/` without a corresponding review file
+- [x] The enforcement mechanism fires reliably without requiring agents to remember the step
+- [x] Review file template or guidance is provided at the point of enforcement
+- [x] Solution integrates cleanly with existing kanban-skill plugin architecture
 
 ## Potential Approaches
 
@@ -56,6 +56,25 @@ Use a prompt-based PreToolUse hook that evaluates file operations targeting `kan
 This ticket was created after an agent completed a bug fix but skipped the review file creation step, requiring manual correction. The kanban-tracker skill documents the requirement but agents don't always follow multi-step processes reliably.
 
 The goal is to make the "happy path" enforce the review process rather than relying on agent discipline.
+
+## Implementation
+
+**Approach chosen:** Option B — Stop Hook Validation (command-based)
+
+**Files added/modified:**
+- `plugins/kanban-skill/hooks/check-review-files.sh` (new) — Shell script that scans `ready-to-review/` and blocks if any ticket is missing a matching review file in `reviews/`
+- `plugins/kanban-skill/hooks/hooks.json` (modified) — Added `Stop` event hook entry
+
+**How it works:**
+1. When the agent tries to stop, the Stop hook fires
+2. The script checks every `.md` in `kanban/ready-to-review/` for a matching file in `kanban/reviews/`
+3. If all present → exit 0 (agent can stop)
+4. If any missing → exit 2 with stderr listing missing files + review template (agent is blocked)
+
+**Design decisions:**
+- Command-based (not prompt-based) for speed and determinism
+- Degrades gracefully: if `kanban/` doesn't exist or `ready-to-review/` is empty, passes through
+- Includes full review template in the blocking message so the agent has everything needed
 
 ## Notes
 
