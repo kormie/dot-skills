@@ -20,7 +20,7 @@ Start the kanban board web viewer at localhost:3333.
 
 4. Tell the user:
    - The board is running at http://localhost:3333
-   - To stop: pkill -f "kanban-skill/server"
+   - To stop: `lsof -ti:3333 | xargs kill`
    - The server will auto-stop when the Claude session ends
 
 ## Example Commands

@@ -6,13 +6,19 @@
 
 ## Summary
 
-Fixed the SessionEnd hook that was supposed to kill the kanban server when a Claude Code session ends. The hook configuration in `hooks.json` was missing the required `matcher` field, causing the hook to never be matched or executed.
+Fixed the SessionEnd hook that was supposed to kill the kanban server when a Claude Code session ends.
+
+**Two issues were found:**
+1. The hook configuration in `hooks.json` was missing the required `matcher` field
+2. The kill command used `pkill -f "kanban-skill/server"` but the actual process command line is just `bun run index.ts` (no path info)
 
 ## Key Files
 
 | File | What changed |
 |------|-------------|
 | `plugins/kanban-skill/hooks/hooks.json` | Added missing `matcher: "*"` field to SessionEnd hook configuration |
+| `plugins/kanban-skill/hooks/stop-server-on-exit.sh` | Changed from `pkill -f` (unreliable) to `lsof -ti:3333 \| xargs kill` (kills by port) |
+| `plugins/kanban-skill/commands/serve.md` | Updated manual stop command to match |
 
 ## How to Verify
 
@@ -37,7 +43,8 @@ After ending the Claude Code session, the kanban server process should be termin
 ## Risks / Things to Watch
 
 - Hooks are loaded at session start, so existing sessions won't see the fix until restarted
-- The kill command uses `pkill -f "kanban-skill/server"` which matches on the command string - if the server path changes, this pattern may need updating
+- The kill command now uses port 3333 - if the port changes, the script needs updating
+- If another process uses port 3333, it will be killed (unlikely in practice)
 
 ## PR Notes
 
@@ -45,9 +52,13 @@ After ending the Claude Code session, the kanban server process should be termin
 
 Fix SessionEnd hook not killing kanban server on session exit.
 
-**Root cause:** The `hooks.json` was missing the required `matcher` field in the SessionEnd hook configuration. Without it, the hook was never matched by Claude Code's hook system.
+**Root causes:**
+1. The `hooks.json` was missing the required `matcher` field - hook was never executed
+2. The kill script used `pkill -f "kanban-skill/server"` but the bun process command line is just `bun run index.ts` (no path info to match)
 
-**Fix:** Added `"matcher": "*"` to properly configure the hook.
+**Fixes:**
+1. Added `"matcher": "*"` to hooks.json
+2. Changed kill method from `pkill -f` to `lsof -ti:3333 | xargs kill` (kills by port)
 
 ### How to Verify
 
@@ -60,6 +71,6 @@ Fix SessionEnd hook not killing kanban server on session exit.
 ### Risks
 
 - Existing sessions need restart to pick up the fix
-- Kill pattern depends on server path containing "kanban-skill/server"
+- Kill command uses port 3333 - if port changes, script needs updating
 
 Full review: [kanban/reviews/bug--session-end-hook-not-killing-server.md](kanban/reviews/bug--session-end-hook-not-killing-server.md)
