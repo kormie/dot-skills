@@ -1,0 +1,66 @@
+---
+title: dot-skills
+description: Personal Claude Code plugin marketplace with file-based kanban tracking
+template: splash
+hero:
+  tagline: A personal plugin marketplace for Claude Code. Track work across sessions with a file-based kanban board, workstream grouping, and a real-time web viewer — all driven by plain markdown files.
+  actions:
+    - text: Get Started
+      link: /dot-skills/getting-started/overview/
+      icon: right-arrow
+      variant: primary
+    - text: View on GitHub
+      link: https://github.com/kormie/dot-skills
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+## Features
+
+<CardGrid stagger>
+  <Card title="File-Based Kanban" icon="list-format">
+    Tickets are plain markdown files with YAML frontmatter. Move them between directories to change status — no database required.
+  </Card>
+  <Card title="Workstreams" icon="random">
+    Group related tickets into workstreams with progress tracking, dependency resolution, and recommended execution order.
+  </Card>
+  <Card title="Web Viewer" icon="laptop">
+    Three built-in views — Board, Table, and Swimlane — with real-time updates via Server-Sent Events and an in-browser markdown editor.
+  </Card>
+  <Card title="Claude Code Integration" icon="puzzle">
+    Skills, hooks, and slash commands that give Claude full context on your board, enforce review workflows, and pick the next ticket automatically.
+  </Card>
+  <Card title="Git Auto-Commit" icon="approve-check-circle">
+    Every ticket creation and status change is automatically committed, keeping your project history clean without extra effort.
+  </Card>
+  <Card title="Extensible Plugin System" icon="setting">
+    Build and register your own skills, hooks, and commands. The marketplace architecture supports multiple plugins side by side.
+  </Card>
+</CardGrid>
+
+## Explore the Docs
+
+<CardGrid>
+  <LinkCard
+    title="Overview"
+    description="What dot-skills is and how the kanban-skill plugin works."
+    href="/dot-skills/getting-started/overview/"
+  />
+  <LinkCard
+    title="Installation"
+    description="Register the marketplace and enable the kanban-skill plugin."
+    href="/dot-skills/getting-started/installation/"
+  />
+  <LinkCard
+    title="Kanban Board Guide"
+    description="Columns, ticket lifecycle, and the web viewer."
+    href="/dot-skills/guides/kanban-board/"
+  />
+  <LinkCard
+    title="Ticket Format Reference"
+    description="Frontmatter fields, naming conventions, and type prefixes."
+    href="/dot-skills/reference/ticket-format/"
+  />
+</CardGrid>
