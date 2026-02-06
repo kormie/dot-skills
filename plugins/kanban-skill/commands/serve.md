@@ -20,16 +20,14 @@ Start the kanban board web viewer at localhost:3333.
 
 4. Tell the user:
    - The board is running at http://localhost:3333
-   - To stop: `kill $(cat .kanban-server.pid) && rm .kanban-server.pid`
    - The server will auto-stop when the Claude session ends
+   - If the server doesn't stop automatically: `pkill -f kanban-skill/server`
 
 ## Example Commands
 
 ```bash
 # Start server in background
 cd "${CLAUDE_PLUGIN_ROOT}/server" && KANBAN_ROOT="${CLAUDE_PROJECT_DIR}" bun run index.ts &
-echo $! > .kanban-server.pid
-echo "Started server with pid $(cat .kanban-server.pid)"
 
 # Open browser (macOS)
 open http://localhost:3333
