@@ -1,0 +1,6 @@
+{
+  "name": "kanban-server",
+  "scripts": {
+    "test": "bun test"
+  }
+}

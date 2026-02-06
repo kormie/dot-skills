@@ -1,6 +1,6 @@
 import { Glob } from "bun";
 import { watch, type FSWatcher } from "fs";
-import { gitCommit } from "./git";
+import { gitCommit, type GitResult } from "./git";
 
 // SSE client management
 const sseClients = new Set<WritableStreamDefaultWriter<Uint8Array>>();
@@ -375,8 +375,12 @@ export async function handleApi(req: Request, url: URL, root: string): Promise<R
     const body = await req.json();
     const content = body.content;
     await Bun.write(filepath, content);
-    await gitCommit(filepath, "update");
-    return Response.json({ success: true });
+    const gitResult = await gitCommit(filepath, "update");
+    return Response.json({
+      success: true,
+      gitCommitted: gitResult.success,
+      ...(gitResult.error ? { gitError: gitResult.error } : {}),
+    });
   }
 
   // POST /api/tickets
@@ -396,8 +400,12 @@ export async function handleApi(req: Request, url: URL, root: string): Promise<R
       const filepath = `${root}/kanban/todo/${filename}`;
 
       await Bun.write(filepath, content);
-      await gitCommit(filepath, "create");
-      return Response.json({ filename });
+      const gitResult = await gitCommit(filepath, "create");
+      return Response.json({
+        filename,
+        gitCommitted: gitResult.success,
+        ...(gitResult.error ? { gitError: gitResult.error } : {}),
+      });
     }
 
     // Legacy: structured body with type, title, priority, etc.
@@ -439,8 +447,12 @@ ${criteria || "- [ ] TBD"}
 `;
 
     await Bun.write(filepath, content);
-    await gitCommit(filepath, "create");
-    return Response.json({ filename });
+    const gitResult = await gitCommit(filepath, "create");
+    return Response.json({
+      filename,
+      gitCommitted: gitResult.success,
+      ...(gitResult.error ? { gitError: gitResult.error } : {}),
+    });
   }
 
   return new Response("Not Found", { status: 404 });
