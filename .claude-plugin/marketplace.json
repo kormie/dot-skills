@@ -14,6 +14,15 @@
       "author": {
         "name": "David Kormushoff"
       }
+    },
+    {
+      "name": "github-pages-astro",
+      "source": "./plugins/github-pages-astro",
+      "description": "Documentation site management for Astro + Starlight on GitHub Pages",
+      "version": "1.0.0",
+      "author": {
+        "name": "David Kormushoff"
+      }
     }
   ]
 }
