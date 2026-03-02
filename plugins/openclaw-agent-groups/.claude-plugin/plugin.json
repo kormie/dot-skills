@@ -1,0 +1,8 @@
+{
+  "name": "openclaw-agent-groups",
+  "description": "Bind OpenClaw agents to Telegram groups with a single command",
+  "version": "1.0.0",
+  "author": {
+    "name": "David Kormushoff"
+  }
+}
